@@ -6,34 +6,39 @@ export default function Home() {
   const [resultUrl, setResultUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const handleUpload = async () => {
-    if (!file) return;
-    setUploading(true);
-    setError(null);
-    setResultUrl(null);
+const handleUpload = async () => {
+  if (!file) return;
+  setUploading(true);
+  setError(null);
+  setResultUrl(null);
 
-    const formData = new FormData();
-    formData.append('file', file);
+  const formData = new FormData();
+  formData.append('file', file);
 
-    try {
-      const res = await fetch('https://express-shopify.onrender.com/upload', {
-        method: 'POST',
-        body: formData,
-      });
+  try {
+    const res = await fetch('https://express-shopify.onrender.com/upload', {
+      method: 'POST',
+      body: formData,
+    });
 
-      const data = await res.json();
+    const data = await res.json();
 
-      if (res.ok) {
-        setResultUrl(data.url);
-      } else {
-        setError(data.error || 'Upload failed');
-      }
-    } catch (err: any) {
-      setError(err.message || 'Something went wrong');
-    } finally {
-      setUploading(false);
+    if (res.ok) {
+      setResultUrl(data.url);
+    } else {
+      setError(data.error || 'Upload failed');
     }
-  };
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      setError(err.message);
+    } else {
+      setError('Something went wrong');
+    }
+  } finally {
+    setUploading(false);
+  }
+};
+
 
   return (
     <main style={{ padding: '40px', fontFamily: 'Arial' }}>
