@@ -6,39 +6,41 @@ export default function Home() {
   const [resultUrl, setResultUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-const handleUpload = async () => {
-  if (!file) return;
-  setUploading(true);
-  setError(null);
-  setResultUrl(null);
+  const handleUpload = async () => {
+    if (!file) return;
 
-  const formData = new FormData();
-  formData.append('file', file);
+    setUploading(true);
+    setError(null);
+    setResultUrl(null);
 
-  try {
-    const res = await fetch('https://express-shopify.onrender.com/upload', {
-      method: 'POST',
-      body: formData,
-    });
+    const formData = new FormData();
+    formData.append('file', file);
 
-    const data = await res.json();
+    try {
+      const res = await fetch('https://localhost:3001/upload', {
+        method: 'POST',
+        body: formData,
+      });
 
-    if (res.ok) {
-      setResultUrl(data.url);
-    } else {
-      setError(data.error || 'Upload failed');
+      const data = await res.json();
+
+      if (res.ok) {
+        setResultUrl(data.url);
+      } else {
+        console.error('❌ Upload failed:', data);
+        setError(data.error || 'Upload failed');
+      }
+    } catch (err: unknown) {
+      console.error('❌ Exception:', err);
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Something went wrong');
+      }
+    } finally {
+      setUploading(false);
     }
-  } catch (err: unknown) {
-    if (err instanceof Error) {
-      setError(err.message);
-    } else {
-      setError('Something went wrong');
-    }
-  } finally {
-    setUploading(false);
-  }
-};
-
+  };
 
   return (
     <main style={{ padding: '40px', fontFamily: 'Arial' }}>
@@ -46,6 +48,7 @@ const handleUpload = async () => {
 
       <input
         type="file"
+        accept="video/*,image/*,application/pdf"
         onChange={(e) => setFile(e.target.files?.[0] || null)}
         disabled={uploading}
       />
